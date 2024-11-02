@@ -1,58 +1,57 @@
 -- название и продолжительность самого продолжительного трека;
-SELECT title, continuity FROM "Tracks" 
-WHERE continuity = (SELECT MAX(continuity) FROM "Tracks");
+SELECT TrackName, continuity FROM Tracks 
+WHERE continuity = (SELECT MAX(continuity) FROM Tracks);
 
 -- название треков, продолжительность которых не менее 3,5 минут;
-SELECT title, continuity FROM "Tracks"
+SELECT TrackName, continuity FROM Tracks
 WHERE continuity >= '00:03:30';
 
 -- названия сборников, вышедших в период с 2018 по 2020 год с ограничениями;
-select title FROM "Albums"
-WHERE "year" BETWEEN 2018 AND 2020;
+select CollectionName, YearOfProduction FROM Collections
+WHERE YearOfProduction BETWEEN 2018 AND 2020;
 
 -- исполнители, чье имя состоит из 1 слова;
-select name FROM "Performers"
-WHERE name NOT LIKE  '% %';
+select Performername FROM Performers
+WHERE PerformerName NOT LIKE  '% %';
 
 -- название треков, которое содержит слово "мой"/"my".
-SELECT title FROM "Tracks"
-	WHERE title LIKE '%мой%';
+SELECT TrackName FROM Tracks
+WHERE STRING_to_ARRAY (LOWER(TrackName), ' ') && ARRAY['мой', 'мой %', '% мой', '%мой%', 'my', '% my', 'my %', '%my%'];
 	
-SELECT title FROM "Tracks" 
-	WHERE title LIKE '%my%';
 
 
 --Количество исполнителей в каждом жанре.
-SELECT genreid, COUNT(performerid) FROM "PerformersTypesofMusic" 
-GROUP BY genreid;
+SELECT GenreId, COUNT(PerformerId) FROM PerformersTypesofMusic
+GROUP BY GenreId;
 
 
 --Количество треков, вошедших в альбомы 2019-2020 годов
-select count(title) from "Tracks"
-join Albums on Tracks.albumid = Albums.albumid
-where year >= '20190101' and year <= '20201231'
+select count(TrackName) from Tracks
+join Albums on Tracks.AlbumId = Albums.AlbumId
+where YearRelease >= '1997' and YearRelease <= '1998'
 
 
 --Средняя продолжительность треков по каждому альбому
-select title, avg(continuity) from "Tracks"
-join "Albums"  on Tracks.albumid = Albums.albumid
-group by title
+select TrackName, avg(Continuity) from Tracks
+join Albums  on Tracks.AlbumId = Albums.AlbumId
+group by TrackName
 
 
 --Все исполнители, которые не выпустили альбомы в 2020 году
-SELECT "Performers".name FROM "Performers" 
-WHERE NOT performerid IN(SELECT performerid FROM "AlbumsPerformers"
-JOIN "Albums" ON "AlbumsPerformers".albumid = "Album".albumid
-WHERE  "Albums.year" = 2020);
+SELECT PerformerName FROM Performers
+join ALbumsPerformers on Performers.PerformerId = AlbumsPerformers.PerformerId 
+join Albums on Albums.AlbumId = AlbumsPerformers.AlbumId 
+where YearRelease not between '2020' 
+group BY PerformerName
+
 
 --Названия сборников, в которых присутствует конкретный исполнитель (выберите его сами).
-SELECT "Collections".title
-FROM "Collections" 
-JOIN "CollectionsTracks"  ON "Collection".collectionid = "CollectionsTracks".collectionid
-JOIN "Tracks" ON "CollectionsTracks".collectionid = "Tracks".trackid 
-JOIN "Albums" ON "Tracks".albumid = "Albums".albumid
-JOIN "AlbumsPerformers" ON "Albums".albumid = "AlbumsPerformers".albumid
-JOIN "Performers" ON "Performers".performerid = "AlbumsPerformers".performerid
-WHERE "Performers".name = 'Бутырка' 
-ORDER BY "Collections".title ;
+SELECT CollectionName FROM Collections 
+JOIN CollectionsTracks  ON Collection.CollectionId = CollectionsTracks.CollectionId
+JOIN Tracks ON CollectionsTracks.CollectionId = Tracks.TrackId 
+JOIN Albums ON Tracks.AlbumId = Albums.AlbumId
+JOIN AlbumsPerformers ON Albums.AlbumId = AlbumsPerformers.AlbumId
+JOIN Performers ON Performers.PerformerId = AlbumsPerformers.PerformerId
+WHERE Performers.PerformerName = 'Бутырка' 
+ORDER BY Collections.CollectionName ;
 
