@@ -16,7 +16,7 @@ WHERE PerformerName NOT LIKE  '% %';
 
 -- название треков, которое содержит слово "мой"/"my".
 SELECT TrackName FROM Tracks
-WHERE STRING_to_ARRAY (LOWER(TrackName), ' ') && ARRAY['мой', 'мой %', '% мой', '%мой%', 'my', '% my', 'my %', '%my%'];
+WHERE STRING_to_ARRAY (LOWER(TrackName), ' ') && ARRAY['мой', 'my'];
 	
 
 
@@ -37,12 +37,12 @@ join Albums  on Tracks.AlbumId = Albums.AlbumId
 group by TrackName
 
 
+
 --Все исполнители, которые не выпустили альбомы в 2020 году
-SELECT PerformerName FROM Performers
-join ALbumsPerformers on Performers.PerformerId = AlbumsPerformers.PerformerId 
-join Albums on Albums.AlbumId = AlbumsPerformers.AlbumId 
-where YearRelease not between '2020' 
-group BY PerformerName
+SELECT PerformerName FROM Performers 
+WHERE NOT PerformerId IN(SELECT PerformerId FROM AlbumsPerformers
+JOIN Albums ON AlbumsPerformers.AlbumId = Albums.AlbumId
+WHERE  Albums.YearRelease = 2020);
 
 
 --Названия сборников, в которых присутствует конкретный исполнитель (выберите его сами).
